@@ -1,103 +1,142 @@
-import Image from "next/image";
+"use client";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import EmailForm from "~/components/forms/EmailForm";
+import EmailForm2 from "~/components/forms/EmailForm2";
+import EmailForm3 from "~/components/forms/EmailForm3";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import ReportedEmail from "~/lib/mail/templates/ReportedEmail";
+import Template2 from "~/lib/mail/templates/Template2";
+import Template3 from "~/lib/mail/templates/Template3";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [formData, setFormData] = useState({
+    emails: "",
+    subject: "",
+    message: "",
+    template: "template1",
+    company: "",
+    phone: "",
+    imageUrl: "",
+    linkUrl: [""],
+    textLinkUrl: [""],
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleChangeData = (data: {
+    emails: string;
+    subject: string;
+    message: string;
+    template: string;
+    company?: string | undefined;
+    phone?: string | undefined;
+    imageUrl?: string | undefined;
+    linkUrl?: string[] | string | undefined;
+    textLinkUrl?: string[] | string | undefined;
+  }) => {
+    setFormData({
+      ...data,
+      company: data.company || "",
+      phone: data.phone || "",
+      imageUrl: data.imageUrl || "",
+      linkUrl: Array.isArray(data.linkUrl) ? data.linkUrl : data.linkUrl ? [data.linkUrl] : [""],
+      textLinkUrl: Array.isArray(data.textLinkUrl) ? data.textLinkUrl : data.textLinkUrl ? [data.textLinkUrl] : [""],
+    });
+  };
+
+  const handleTemplateChange = (templateValue: string) => {
+    const newData = {
+      emails: formData.emails,
+      subject: "",
+      message: "",
+      template: templateValue,
+      company: "",
+      phone: "",
+      imageUrl: "",
+      linkUrl: [""],
+      textLinkUrl: [""],
+    };
+    setFormData(newData);
+    handleChangeData(newData);
+  };
+
+  const renderEmailTemplate = () => {
+    const props = {
+      subject: formData.subject || "Thông báo mới",
+      message: formData.message || "Bạn có một thông báo mới.",
+      company: formData.company || "Công ty ABC",
+      phone: formData.phone || "0123-456-789",
+      imageUrl: formData.imageUrl || "https://via.placeholder.com/150",
+      linkUrl: formData.linkUrl || "https://bigdatatech.vn",
+      textLinkUrl: formData.textLinkUrl || "BigDataTech",
+    };
+
+    switch (formData.template) {
+      case "template1":
+        return <ReportedEmail {...props} />;
+      case "template2":
+        return <Template2 {...props} />;
+      case "template3":
+        return <Template3 {...props} />;
+      default:
+        return <ReportedEmail {...props} />;
+    }
+  };
+
+  const renderEmailFormTemplate = () => {
+    const props = {
+      subject: formData.subject || "Thông báo mới",
+      message: formData.message || "Bạn có một thông báo mới.",
+      company: formData.company || "Công ty ABC",
+      phone: formData.phone || "0123-456-789",
+      imageUrl: formData.imageUrl || "https://via.placeholder.com/150",
+      textLinkUrl: formData.textLinkUrl || [""],
+      onDataChange: handleChangeData,
+    };
+
+    const form2Props = {
+      formData: formData,
+      onDataChange: handleChangeData,
+    };
+
+    switch (formData.template) {
+      case "template1":
+        return <EmailForm {...props} />;
+      case "template2":
+        return <EmailForm2 {...form2Props} />;
+      case "template3":
+        return <EmailForm3 {...form2Props} />;
+      default:
+        return <EmailForm {...props} />;
+    }
+  };
+
+  return (
+    <div className=" p-4 flex items-center justify-center h-screen bg-gray-400">
+      <div className="flex w-full h-full overflow-hidden flex-row justify-center border rounded-2xl shadow-lg p-4 bg-white gap-4">
+        <div className="w-[40%] h-full border-r pr-4 overflow-y-scroll">
+          <h2 className="text-center font-bold text-2xl">Email Form</h2>
+          <div>
+            <label className="flex flex-row items-center gap-1 mb-2" htmlFor="">
+              Select template <ChevronDown />
+            </label>
+            <Select value={formData.template} onValueChange={handleTemplateChange}>
+              <SelectTrigger className="w-full cursor-pointer">
+                <SelectValue placeholder="Choose template" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="template1">Template 1</SelectItem>
+                <SelectItem value="template2">Template 2</SelectItem>
+                <SelectItem value="template3">Template 3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="">{renderEmailFormTemplate()}</div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="w-[60%] h-full overflow-y-scroll">
+          <h2 className="text-center font-bold text-2xl mb-4">Email Template Preview</h2>
+          {renderEmailTemplate()}
+        </div>
+      </div>
     </div>
   );
 }
