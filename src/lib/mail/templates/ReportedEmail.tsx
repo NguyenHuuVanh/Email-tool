@@ -1,8 +1,6 @@
 import React from "react";
 
-interface WelcomeEmailPreviewProps {}
-
-const ReportedEmail: React.FC<WelcomeEmailPreviewProps> = ({}) => {
+const ReportedEmail: React.FC = ({}) => {
   return (
     <div
       style={{
