@@ -52,6 +52,8 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
     textLinkUrl: [""],
   });
 
+  const [quillKey, setQuillKey] = useState(0);
+
   useEffect(() => {
     if (initalData) {
       setFormData({ ...formData, ...initalData });
@@ -134,7 +136,7 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
   };
 
   const addLinkUrl = () => {
-    const newData = { ...formData, linkUrl: [...formData.linkUrl, ""] };
+    const newData = { ...formData, linkUrl: [...formData.linkUrl, ""], textLinkUrl: [...formData.textLinkUrl, ""] };
     setFormData(newData);
     onDataChange(newData);
   };
@@ -142,7 +144,8 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
   const removeLinkUrl = (index: number) => {
     if (formData.linkUrl.length > 1) {
       const newLinkUrl = formData.linkUrl.filter((_, i) => i !== index);
-      const newData = { ...formData, linkUrl: newLinkUrl };
+      const newTextLinkUrl = formData.textLinkUrl.filter((_, i) => i !== index);
+      const newData = { ...formData, linkUrl: newLinkUrl, textLinkUrl: newTextLinkUrl };
       setFormData(newData);
       onDataChange(newData);
     }
@@ -172,8 +175,6 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
         subject: formData.subject || "Thông báo từ BigDataTech",
       });
 
-      console.log("Email sent successfully:", response.data);
-
       const resetData = {
         emails: "",
         subject: "",
@@ -187,6 +188,7 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
       };
       setFormData(resetData);
       onDataChange(resetData);
+      setQuillKey((prev) => prev + 1);
     } catch (error) {
       console.error("Error sending email:", error);
     }
@@ -227,6 +229,7 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
         </label>
         <div className="bg-white rounded-md border border-gray-300 h-[300px]">
           <ReactQuill
+            key={quillKey}
             theme="snow"
             value={formData.message}
             onChange={handleQuillChange}
@@ -293,7 +296,7 @@ const Template1Form: React.FC<EmailFormProps> = ({ onDataChange, initalData }) =
             />
             <Input
               type="text"
-              value={formData.textLinkUrl[index]}
+              value={formData.textLinkUrl[index] || ""}
               placeholder={`Text ${index + 1}: Link 1`}
               onChange={(e) => handleTextLinkUrlChange(index, e.target.value)}
               className="flex-1"
